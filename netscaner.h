@@ -9,14 +9,20 @@
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
 
+#include "connectedmodel.h"
+
 class NetScaner : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(ConnectedModel *connected READ connected NOTIFY connectedChanged)
 public:
     explicit NetScaner(QObject *parent = nullptr);
 
+    ConnectedModel *connected() { return &connectedModel; }
+
 private:
     QList<int> ports;
+    ConnectedModel connectedModel;
 
     static QHostAddress setSubNetIPv4(QHostAddress ip, int sub);
 
@@ -25,6 +31,8 @@ private:
     int msWaitForConnected = 10000;
 
     QJsonArray connectedAddresses;
+    virtual QList<QHostAddress> filterAddresses(QList<QHostAddress>);//TODO: rewtite to RegExp
+
 
 public slots:
     void scan();
@@ -32,6 +40,7 @@ public slots:
 
 
 signals:
+    void connectedChanged();
 
 };
 

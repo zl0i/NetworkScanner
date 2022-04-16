@@ -6,6 +6,8 @@
 #include <QTcpSocket>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QFuture>
+#include <QtConcurrent/QtConcurrent>
 
 class NetScaner : public QObject
 {
@@ -16,11 +18,18 @@ public:
 private:
     QList<int> ports;
 
-    QHostAddress setSubNetIPv4(QHostAddress ip, int sub);
+    static QHostAddress setSubNetIPv4(QHostAddress ip, int sub);
 
+    static QJsonArray scanSubNets(QHostAddress ip, QList<int> *ports, int start = 0, int end = 255, int msWaitForConnected = 30000);
+
+    int msWaitForConnected = 10000;
+
+    QJsonArray connectedAddresses;
 
 public slots:
-    QJsonArray scan();
+    void scan();
+    void asyncScan();
+
 
 signals:
 

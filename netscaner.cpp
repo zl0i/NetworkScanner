@@ -16,9 +16,9 @@ QHostAddress NetScaner::setSubNetIPv4(QHostAddress ip, int sub)
     return QHostAddress(subs.join("."));
 }
 
-QJsonArray NetScaner::scanSubNets(QHostAddress ip, QList<int> *ports, int start, int end, int msWaitForConnected)
+void NetScaner::scanSubNets(QHostAddress ip, QList<int> *ports, ConnectedModel *model, int start, int end, int msWaitForConnected)
 {
-    QJsonArray connectedAddresses;
+
     for(int i = start; i <= end; i++) {
         QHostAddress current = setSubNetIPv4(ip, i);
         if(current == ip) {
@@ -34,13 +34,12 @@ QJsonArray NetScaner::scanSubNets(QHostAddress ip, QList<int> *ports, int start,
             }
         }
         if(connectedPorts.size() > 0) {
-            connectedAddresses.append(QJsonObject {
-                                          { "address", current.toString() },
-                                          { "ports", connectedPorts }
-                                      });
+            model->append(QJsonObject {
+                              { "address", current.toString() },
+                              { "ports", connectedPorts }
+                          });
         }
     }
-    return connectedAddresses;
 }
 
 QList<QHostAddress> NetScaner::filterAddresses(QList<QHostAddress> addresses)
@@ -63,9 +62,8 @@ void NetScaner::scan()
     QList<QHostAddress> targetAddresses = filterAddresses(addresses);
     for(int i = 0; i < targetAddresses.size(); i++) {
         QHostAddress current = targetAddresses[i];
-        scanSubNets(current, &ports, 0, 255);
+        scanSubNets(current, &ports, &connectedModel, 0, 255);
     }
-    connectedModel.append(connectedAddresses);
 }
 
 void NetScaner::asyncScan()
@@ -74,10 +72,6 @@ void NetScaner::asyncScan()
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     QList<QHostAddress> targetAddresses = filterAddresses(addresses);
     for(int i = 0; i < targetAddresses.size(); i++) {
-        QFuture<QJsonArray> future = QtConcurrent::run(scanSubNets, targetAddresses[i], &ports, 0, 2, msWaitForConnected);
-        future.then([=](QJsonArray res) {
-            connectedAddresses.append(res);
-            connectedModel.append(res);
-        });
+        QFuture<void> future = QtConcurrent::run(scanSubNets, targetAddresses[i], &ports, &connectedModel, 0, 255, msWaitForConnected);
     }
 }

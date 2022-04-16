@@ -26,7 +26,7 @@ private:
 
     static QHostAddress setSubNetIPv4(QHostAddress ip, int sub);
 
-    static QJsonArray scanSubNets(QHostAddress ip, QList<int> *ports, int start = 0, int end = 255, int msWaitForConnected = 30000);
+    static void scanSubNets(QHostAddress ip, QList<int> *ports, ConnectedModel *model, int start = 0, int end = 255, int msWaitForConnected = 30000);
 
     int msWaitForConnected = 10000;
 

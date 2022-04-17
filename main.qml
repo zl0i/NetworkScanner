@@ -1,6 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
+import NetScanner 1.0
+
 ApplicationWindow {
     width: 640
     height: 480
@@ -12,7 +14,7 @@ ApplicationWindow {
         width: 200
         height: parent.height
         clip: true
-        model: scanner.connectedModel
+        model: _scaner.connectedModel
         delegate: ItemDelegate {
             width: ListView.view.width
             height: 50
@@ -32,12 +34,21 @@ ApplicationWindow {
         width: 120
         height: 40
         text: "Scan"
-        onClicked: scanner.asyncScan()
+        onClicked: _scaner.scan()
     }
 
     Connections {
         target: scanner
         function onFinished() {
+            console.log("yeeees!!")
+        }
+    }
+
+    NetScanner {
+        id: _scaner
+        async: true
+        ports: [80, 443]
+        onFinished: {
             console.log("yeeees!!")
         }
     }

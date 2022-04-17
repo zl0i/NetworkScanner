@@ -3,7 +3,6 @@
 NetScanner::NetScanner(QObject *parent)
     : QObject{parent}
 {
-    ports.append(80);
 }
 
 QHostAddress NetScanner::setSubNetIPv4(QHostAddress ip, int sub)

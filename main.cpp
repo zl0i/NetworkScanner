@@ -1,6 +1,5 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QQmlContext>
 
 #include <netscanner.h>
 
@@ -11,12 +10,9 @@ int main(int argc, char *argv[])
 #endif
     QGuiApplication app(argc, argv);
 
-    NetScanner scanner;
-    scanner.scan();
-
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("scanner", &scanner);
-
+    qmlRegisterType<NetScanner>("NetScanner", 1, 0, "NetScanner");
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {

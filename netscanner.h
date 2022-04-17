@@ -19,6 +19,7 @@ class NetScanner : public QObject
     Q_PROPERTY(bool async READ async WRITE setAsync NOTIFY asyncChanged)
     Q_PROPERTY(int waitForConnected READ waitForConnected WRITE setWaitForConnected NOTIFY waitForConnectedChanged)
     Q_PROPERTY(int threads READ threads WRITE setThreads NOTIFY threadsChanged)
+    Q_PROPERTY(QList<int> ports READ getPorts WRITE setPorts NOTIFY portsChanged)
 public:
     explicit NetScanner(QObject *parent = nullptr);
 
@@ -30,6 +31,9 @@ public:
     int waitForConnected() { return msWaitForConnected; }
     void setThreads(int t) { countThreads = t; }
     int threads() { return countThreads; }
+    QList<int> getPorts() { return ports; }
+    void setPorts(QList<int> p) { ports.clear(); ports.append(p); }
+    void addPort(int p) { ports.append(p); }
 
 protected:
     virtual QList<QHostAddress> filterAddresses(QList<QHostAddress>);//TODO: rewtite to RegExp
@@ -56,10 +60,10 @@ signals:
     void asyncChanged();
     void waitForConnectedChanged();
     void threadsChanged();
+    void portsChanged();
 
     void started();
     void finished();
-
 };
 
 #endif // NETSCANNER_H

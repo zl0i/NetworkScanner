@@ -41,6 +41,20 @@ void NetScanner::scanSubNets(QHostAddress ip, QList<int> *ports, ConnectedModel 
     }
 }
 
+QFutureWatcher<void> *NetScanner::createFuture(QHostAddress ip, int start, int end)
+{
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
+    connect(watcher, &QFutureWatcher<int>::finished, [=] {
+        countFinishedFutures += 1;
+        qDebug() << countFinishedFutures << this->watcher.size()-this->watcher.size()/threads;
+        if(countFinishedFutures == this->watcher.size()-this->watcher.size()/threads) {
+            emit finished();
+        }
+    });
+    watcher->setFuture(QtConcurrent::run(scanSubNets, ip, &ports, &model, start, end, msWaitForConnected));
+    return watcher;
+}
+
 QList<QHostAddress> NetScanner::filterAddresses(QList<QHostAddress> addresses)
 {
     QList<QHostAddress> targets;
@@ -57,6 +71,7 @@ QList<QHostAddress> NetScanner::filterAddresses(QList<QHostAddress> addresses)
 void NetScanner::scan()
 {
     model.clear();
+    stop();
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     QList<QHostAddress> targetAddresses = filterAddresses(addresses);
     for(int i = 0; i < targetAddresses.size(); i++) {
@@ -68,13 +83,24 @@ void NetScanner::scan()
 void NetScanner::asyncScan()
 {
     model.clear();
+    stop();
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     QList<QHostAddress> targetAddresses = filterAddresses(addresses);
     for(int i = 0; i < targetAddresses.size(); i++) {
         int count = 255 / threads;
         for(int j = 0; j < threads-1; j++) {
-            QFuture<void> future = QtConcurrent::run(scanSubNets, targetAddresses[i], &ports, &model, j*count, j*count+count-1, msWaitForConnected);
+            watcher.append( createFuture(targetAddresses[i], j*count, j*count+count-1));
         }
-        QFuture<void> future = QtConcurrent::run(scanSubNets, targetAddresses[i], &ports, &model, (threads-1)*count, 255, msWaitForConnected);
+        watcher.append( createFuture(targetAddresses[i], (threads-1)*count, 255));
     }
+}
+
+void NetScanner::stop()
+{
+    countFinishedFutures = 0;
+    for(int i = 0; i < watcher.size(); i++) {
+        watcher.at(i)->future().cancel();
+        watcher.at(i)->deleteLater();
+    }
+    watcher.clear();
 }

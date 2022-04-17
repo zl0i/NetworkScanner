@@ -34,4 +34,11 @@ ApplicationWindow {
         text: "Scan"
         onClicked: scanner.asyncScan()
     }
+
+    Connections {
+        target: scanner
+        function onFinished() {
+            console.log("yeeees!!")
+        }
+    }
 }

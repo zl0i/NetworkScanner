@@ -52,7 +52,7 @@ private:
     QFutureWatcher<void> *createFuture(QHostAddress ip, int start, int end);
 
 public slots:
-    void scan();   
+    void start();
     void stop();
 
 signals:

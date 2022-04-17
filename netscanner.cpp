@@ -64,12 +64,13 @@ QList<QHostAddress> NetScanner::filterAddresses(QList<QHostAddress> addresses)
     return targets;
 }
 
-void NetScanner::scan()
+void NetScanner::start()
 {
     model.clear();
     stop();
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     QList<QHostAddress> targetAddresses = filterAddresses(addresses);
+    emit started();
     if(isAsync) {
         for(int i = 0; i < targetAddresses.size(); i++) {
             int count = (255 / countThreads) * targetAddresses.size();

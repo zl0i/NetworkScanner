@@ -46,7 +46,7 @@ QFutureWatcher<void> *NetScanner::createFuture(QHostAddress ip, int start, int e
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
     connect(watcher, &QFutureWatcher<int>::finished, [=] {
         countFinishedFutures += 1;
-        if(countFinishedFutures == this->watcher.size()-this->watcher.size()/threads) {
+        if(countFinishedFutures == this->watcher.size()-this->watcher.size()/countThreads) {
             emit finished();
         }
     });
@@ -73,11 +73,11 @@ void NetScanner::scan()
     QList<QHostAddress> targetAddresses = filterAddresses(addresses);
     if(isAsync) {
         for(int i = 0; i < targetAddresses.size(); i++) {
-            int count = (255 / threads) * targetAddresses.size();
-            for(int j = 0; j < (threads/targetAddresses.size())-1; j++) {
+            int count = (255 / countThreads) * targetAddresses.size();
+            for(int j = 0; j < (countThreads/targetAddresses.size())-1; j++) {
                 watcher.append( createFuture(targetAddresses[i], j*count, j*count+count-1));
             }
-            watcher.append(createFuture(targetAddresses[i], (threads/targetAddresses.size()-1)*count, 255));
+            watcher.append(createFuture(targetAddresses[i], (countThreads/targetAddresses.size()-1)*count, 255));
         }
     } else {
         for(int i = 0; i < targetAddresses.size(); i++) {

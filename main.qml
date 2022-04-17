@@ -34,22 +34,15 @@ ApplicationWindow {
         width: 120
         height: 40
         text: "Scan"
-        onClicked: _scaner.scan()
+        onClicked: _scaner.start()
     }
 
-    Connections {
-        target: scanner
-        function onFinished() {
-            console.log("yeeees!!")
-        }
-    }
 
     NetScanner {
         id: _scaner
         async: true
         ports: [80, 443]
-        onFinished: {
-            console.log("yeeees!!")
-        }
+        onStarted: console.log("started!")
+        onFinished: console.log("finished!")
     }
 }

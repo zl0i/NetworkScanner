@@ -66,33 +66,27 @@ QList<QHostAddress> NetScanner::filterAddresses(QList<QHostAddress> addresses)
     return targets;
 }
 
-
-
 void NetScanner::scan()
 {
     model.clear();
     stop();
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     QList<QHostAddress> targetAddresses = filterAddresses(addresses);
-    for(int i = 0; i < targetAddresses.size(); i++) {
-        QHostAddress current = targetAddresses[i];
-        scanSubNets(current, &ports, &model, 0, 255);
-    }
-}
-
-void NetScanner::asyncScan()
-{
-    model.clear();
-    stop();
-    QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
-    QList<QHostAddress> targetAddresses = filterAddresses(addresses);
-    for(int i = 0; i < targetAddresses.size(); i++) {
-        int count = 255 / threads;
-        for(int j = 0; j < threads-1; j++) {
-            watcher.append( createFuture(targetAddresses[i], j*count, j*count+count-1));
+    if(isAsync) {
+        for(int i = 0; i < targetAddresses.size(); i++) {
+            int count = 255 / threads;
+            for(int j = 0; j < threads-1; j++) {
+                watcher.append( createFuture(targetAddresses[i], j*count, j*count+count-1));
+            }
+            watcher.append( createFuture(targetAddresses[i], (threads-1)*count, 255));
         }
-        watcher.append( createFuture(targetAddresses[i], (threads-1)*count, 255));
+    } else {
+        for(int i = 0; i < targetAddresses.size(); i++) {
+            QHostAddress current = targetAddresses[i];
+            scanSubNets(current, &ports, &model, 0, 255);
+        }
     }
+
 }
 
 void NetScanner::stop()

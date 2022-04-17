@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     NetScanner scanner;
-    scanner.asyncScan();
+    scanner.scan();
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("scanner", &scanner);

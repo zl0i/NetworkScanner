@@ -31,14 +31,14 @@ private:
     ConnectedModel model;
     int threads = 128; // true threads = threads * targetAddresses.count()
     int msWaitForConnected = 10000;
+    bool isAsync = true;
 
     static QHostAddress setSubNetIPv4(QHostAddress ip, int sub);
     static void scanSubNets(QHostAddress ip, QList<int> *ports, ConnectedModel *model, int start = 0, int end = 255, int msWaitForConnected = 30000);
     QFutureWatcher<void> *createFuture(QHostAddress ip, int start, int end);
 
 public slots:
-    void scan();
-    void asyncScan();
+    void scan();   
     void stop();
 
 

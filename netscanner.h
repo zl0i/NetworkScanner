@@ -29,7 +29,7 @@ private:
     int countFinishedFutures = 0;
     QList<QFutureWatcher<void>*> watcher;
     ConnectedModel model;
-    int threads = 128; // true threads = threads * targetAddresses.count()
+    int threads = 6; //if odd number, then true threads = threads + 1
     int msWaitForConnected = 10000;
     bool isAsync = true;
 
@@ -40,7 +40,6 @@ private:
 public slots:
     void scan();   
     void stop();
-
 
 signals:
     void connectedModelChanged();

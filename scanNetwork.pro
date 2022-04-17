@@ -7,7 +7,7 @@ QT += quick network
 SOURCES += \
         connectedmodel.cpp \
         main.cpp \
-        netscaner.cpp
+        netscanner.cpp
 
 RESOURCES += qml.qrc
 
@@ -24,4 +24,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     connectedmodel.h \
-    netscaner.h
+    netscanner.h

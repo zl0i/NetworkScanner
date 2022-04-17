@@ -2,7 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
-#include <netscaner.h>
+#include <netscanner.h>
 
 int main(int argc, char *argv[])
 {
@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 #endif
     QGuiApplication app(argc, argv);
 
-    NetScaner scanner;
+    NetScanner scanner;
     scanner.asyncScan();
 
     QQmlApplicationEngine engine;

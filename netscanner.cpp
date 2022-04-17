@@ -1,12 +1,12 @@
-#include "netscaner.h"
+#include "netscanner.h"
 
-NetScaner::NetScaner(QObject *parent)
+NetScanner::NetScanner(QObject *parent)
     : QObject{parent}
 {
     ports.append(80);
 }
 
-QHostAddress NetScaner::setSubNetIPv4(QHostAddress ip, int sub)
+QHostAddress NetScanner::setSubNetIPv4(QHostAddress ip, int sub)
 {
     if(sub > 255)
         return QHostAddress();
@@ -16,9 +16,8 @@ QHostAddress NetScaner::setSubNetIPv4(QHostAddress ip, int sub)
     return QHostAddress(subs.join("."));
 }
 
-void NetScaner::scanSubNets(QHostAddress ip, QList<int> *ports, ConnectedModel *model, int start, int end, int msWaitForConnected)
+void NetScanner::scanSubNets(QHostAddress ip, QList<int> *ports, ConnectedModel *model, int start, int end, int msWaitForConnected)
 {
-
     for(int i = start; i <= end; i++) {
         QHostAddress current = setSubNetIPv4(ip, i);
         if(current == ip) {
@@ -42,7 +41,7 @@ void NetScaner::scanSubNets(QHostAddress ip, QList<int> *ports, ConnectedModel *
     }
 }
 
-QList<QHostAddress> NetScaner::filterAddresses(QList<QHostAddress> addresses)
+QList<QHostAddress> NetScanner::filterAddresses(QList<QHostAddress> addresses)
 {
     QList<QHostAddress> targets;
     for(int i = 0; i< addresses.size(); i++) {
@@ -55,23 +54,23 @@ QList<QHostAddress> NetScaner::filterAddresses(QList<QHostAddress> addresses)
 
 
 
-void NetScaner::scan()
+void NetScanner::scan()
 {
-    connectedModel.clear();
+    model.clear();
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     QList<QHostAddress> targetAddresses = filterAddresses(addresses);
     for(int i = 0; i < targetAddresses.size(); i++) {
         QHostAddress current = targetAddresses[i];
-        scanSubNets(current, &ports, &connectedModel, 0, 255);
+        scanSubNets(current, &ports, &model, 0, 255);
     }
 }
 
-void NetScaner::asyncScan()
+void NetScanner::asyncScan()
 {
-    connectedModel.clear();
+    model.clear();
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     QList<QHostAddress> targetAddresses = filterAddresses(addresses);
     for(int i = 0; i < targetAddresses.size(); i++) {
-        QFuture<void> future = QtConcurrent::run(scanSubNets, targetAddresses[i], &ports, &connectedModel, 0, 255, msWaitForConnected);
+        QFuture<void> future = QtConcurrent::run(scanSubNets, targetAddresses[i], &ports, &model, 0, 255, msWaitForConnected);
     }
 }

@@ -12,7 +12,7 @@ ApplicationWindow {
         width: 200
         height: parent.height
         clip: true
-        model: scanner.connected
+        model: scanner.connectedModel
         delegate: ItemDelegate {
             width: ListView.view.width
             height: 50

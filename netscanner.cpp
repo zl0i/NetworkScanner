@@ -71,6 +71,10 @@ void NetScanner::asyncScan()
     QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
     QList<QHostAddress> targetAddresses = filterAddresses(addresses);
     for(int i = 0; i < targetAddresses.size(); i++) {
-        QFuture<void> future = QtConcurrent::run(scanSubNets, targetAddresses[i], &ports, &model, 0, 255, msWaitForConnected);
+        int count = 255 / threads;
+        for(int j = 0; j < threads-1; j++) {
+            QFuture<void> future = QtConcurrent::run(scanSubNets, targetAddresses[i], &ports, &model, j*count, j*count+count-1, msWaitForConnected);
+        }
+        QFuture<void> future = QtConcurrent::run(scanSubNets, targetAddresses[i], &ports, &model, (threads-1)*count, 255, msWaitForConnected);
     }
 }

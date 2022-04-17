@@ -26,6 +26,7 @@ protected:
 private:
     QList<int> ports;
     ConnectedModel model;
+    int threads = 5;
     int msWaitForConnected = 10000;
 
     static QHostAddress setSubNetIPv4(QHostAddress ip, int sub);
